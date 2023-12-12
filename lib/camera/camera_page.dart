@@ -64,11 +64,11 @@ class _CameraPageState extends State<CameraPage> {
               LogService.d(
                   "555555555555555555555555${_faceDetectorService.faces.length}");
               faces = _faceDetectorService.faces;
-              Utils.showToastSuccess(
-                  "Yuzlar soni ${_faceDetectorService.faces.length}", context);
+              //Utils.showToastSuccess(
+               //   "Yuzlar soni ${_faceDetectorService.faces.length}", context);
             });
           } else {
-            Utils.showToastError("Odamni rasmi yo'q", context);
+            //Utils.showToastError("Odamni rasmi yo'q", context);
             print('face is null');
             setState(() {
               faces = null;
@@ -116,7 +116,7 @@ class _CameraPageState extends State<CameraPage> {
                     //   painter: FacePainter(faces: faces, imageSize: imageSize!),
                     // ),
                     CustomPaint(
-                      painter: EggPainter(faces: faces, imageSize: imageSize!),
+                      painter: EggPainter(faces: faces, imageSize: imageSize!, context: context),
                     ),
                   ],
                 ),

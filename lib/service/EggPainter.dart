@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:real_soft_task/log_service.dart';
-import 'package:real_soft_task/service/utils_service.dart';
 
 class EggPainter extends CustomPainter {
   final List<Face>? faces;
@@ -60,7 +58,10 @@ class EggPainter extends CustomPainter {
   }
 
   bool facesInsideOval() {
-    if (faces == null || faces!.isEmpty) return false;
+    if (faces == null || faces!.isEmpty) {
+      onBackResult(false);
+      return false;
+    }
 
     Face primaryFace = faces!.first;
     Rect faceBoundingBox = primaryFace.boundingBox;
@@ -69,8 +70,6 @@ class EggPainter extends CustomPainter {
     double faceCenterY = faceBoundingBox.top + (faceBoundingBox.height / 2);
 
     if (isPointInsideOval(faceCenterX, faceCenterY)) {
-      LogService.d("DFSCSASA${faceBoundingBox.width + faceBoundingBox.height}");
-
       if (faceBoundingBox.width + faceBoundingBox.height > 850 ||
           faceBoundingBox.width + faceBoundingBox.height < 750) {
         // Utils.showToastError("Yuz qizil aylana ichiga olib keling", context);
@@ -98,8 +97,6 @@ class EggPainter extends CustomPainter {
     double normalizedX = (x - centerX) / majorRadius;
     double normalizedY = (y - centerY) / minorRadius;
 
-    LogService.d(
-        "sccsacsavsav${(normalizedX * normalizedX + normalizedY * normalizedY) <= 1.0}");
     return (normalizedX * normalizedX + normalizedY * normalizedY) <= 1.0;
   }
 

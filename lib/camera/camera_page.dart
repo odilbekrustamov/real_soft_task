@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
@@ -21,7 +23,9 @@ class _CameraPageState extends State<CameraPage> {
   Size? imageSize;
   bool _detectingFaces = false;
   bool _initializing = false;
-  ValueNotifier<int> distanceChainage = ValueNotifier<int>(4);
+  ValueNotifier<int> countdown = ValueNotifier<int>(4);
+  ValueNotifier<bool> counter = ValueNotifier<bool>(false);
+  late Timer _countdownTimer;
 
   // service injection
   FaceDetectorService _faceDetectorService = locator<FaceDetectorService>();
@@ -33,26 +37,33 @@ class _CameraPageState extends State<CameraPage> {
     _faceDetectorService.initialize();
     _start();
 
-    distanceChainage.addListener(() {
-      // This block will be executed whenever distanceChainage changes
-      print('Distance Chainage changed: ${distanceChainage.value}');
+    counter.addListener(() {
+      LogService.e('Counter changed: ${counter.value}');
+      if (counter.value) {
+        startCountdown();
+      } else {
+        countdown.value = 4;
+        stopCountdown();
+      }
+    });
 
-      if (distanceChainage.value == 0) {
-        LogService.e(
-            "dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    countdown.addListener(() {
+      if(countdown.value == 0){
+        LogService.e('Counter changed: ${counter.value}  new page');
+        _countdownTimer.cancel();
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) => DetailPage(),
           ),
         );
+        countdown.value = 4;
       }
     });
   }
 
   @override
   void dispose() {
-    distanceChainage.dispose();
     _cameraService.dispose();
     super.dispose();
   }
@@ -78,12 +89,9 @@ class _CameraPageState extends State<CameraPage> {
           await _faceDetectorService.detectFacesFromImage(image);
           if (_faceDetectorService.faces.isNotEmpty) {
             setState(() {
-              LogService.d(
-                  "555555555555555555555555${_faceDetectorService.faces.length}");
               faces = _faceDetectorService.faces;
             });
           } else {
-            print('face is null');
             setState(() {
               faces = null;
             });
@@ -91,7 +99,6 @@ class _CameraPageState extends State<CameraPage> {
 
           _detectingFaces = false;
         } catch (e) {
-          print('Error _faceDetectorService face => $e');
           _detectingFaces = false;
         }
       }
@@ -150,24 +157,59 @@ class _CameraPageState extends State<CameraPage> {
         body: Stack(
       children: [
         body,
-        Container(
-          child: Center(
-              child: Text(
-            "${distanceChainage.value != 4 && distanceChainage.value != 0 ? distanceChainage.value : ""}",
-            style: TextStyle(color: Colors.black, fontSize: 35),
-          )),
+        Container( // Optional: Set a background color for the container
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                flex: 3,
+                child: Container(),
+              ),
+
+              // Second Container (1/4 of the available space)
+              Flexible(
+                flex: 1,
+                child: Container(
+                  // Content for the second container
+                  child: Center(
+                    child: Text(
+                      "${countdown.value != 4 && countdown.value != 0 ? "${countdown.value} soniya kuting" : ""}",
+                      style: TextStyle(color: Colors.black, fontSize: 20),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         )
+
       ],
     ));
   }
 
   void _onBackResultCallback(bool faceFound) {
-    Future.delayed(Duration.zero, () {
-      if (faceFound && distanceChainage.value > 0) {
-        distanceChainage.value--;
-      } else if (!faceFound) {
-        distanceChainage.value = 4;
+    LogService.e('Counter hvbhgvvhvvvh: ${faceFound} ');
+
+   // Future.delayed(Duration.zero, () {
+      counter.value = faceFound;
+    //});
+  }
+
+  void startCountdown() {
+    const oneSecond = Duration(seconds: 1);
+
+    _countdownTimer = Timer.periodic(oneSecond, (timer) {
+      if (counter.value && countdown.value > 0) {
+        LogService.d('Countdown: ${countdown.value}');
+        countdown.value--;
       }
     });
+  }
+
+  void stopCountdown() {
+    if (_countdownTimer.isActive) {
+      LogService.d('timer cencel');
+      _countdownTimer.cancel();
+    }
   }
 }

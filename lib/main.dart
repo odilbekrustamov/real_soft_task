@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:real_soft_task/camera/camera_page.dart';
+import 'package:real_soft_task/detail_page.dart';
+import 'package:real_soft_task/detail_page.dart';
 import 'package:real_soft_task/service/locator.dart';
 
 Future<void> main() async {
@@ -19,6 +21,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: CameraPage(),
+      routes: {
+        DetailPage.id: (context) => DetailPage(),
+        CameraPage.id: (context) => CameraPage()
+      },
     );
   }
 }

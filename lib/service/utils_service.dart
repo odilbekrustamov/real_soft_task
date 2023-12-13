@@ -25,4 +25,16 @@ class Utils{
     );
   }
 
+  static void showToastButtom(String msg, BuildContext context) {
+    ShowMToast toast = ShowMToast(context);
+    toast.successToast(
+        message: msg,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        alignment: Alignment.center,
+        duration: 300,
+        width: 20,
+    );
+  }
+
 }

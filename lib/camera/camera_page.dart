@@ -1,10 +1,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:real_soft_task/detail_page.dart';
 import 'package:real_soft_task/log_service.dart';
 import 'package:real_soft_task/service/EggPainter.dart';
 import 'package:real_soft_task/service/camera.service.dart';
-import 'package:real_soft_task/service/utils_service.dart';
 
 import '../service/face_detector_service.dart';
 import '../service/locator.dart';
@@ -20,8 +20,8 @@ class _CameraPageState extends State<CameraPage> {
   List<Face>? faces;
   Size? imageSize;
   bool _detectingFaces = false;
-
   bool _initializing = false;
+  ValueNotifier<int> distanceChainage = ValueNotifier<int>(4);
 
   // service injection
   FaceDetectorService _faceDetectorService = locator<FaceDetectorService>();
@@ -32,10 +32,27 @@ class _CameraPageState extends State<CameraPage> {
     super.initState();
     _faceDetectorService.initialize();
     _start();
+
+    distanceChainage.addListener(() {
+      // This block will be executed whenever distanceChainage changes
+      print('Distance Chainage changed: ${distanceChainage.value}');
+
+      if (distanceChainage.value == 0) {
+        LogService.e(
+            "dsfffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => DetailPage(),
+          ),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    distanceChainage.dispose();
     _cameraService.dispose();
     super.dispose();
   }
@@ -64,11 +81,8 @@ class _CameraPageState extends State<CameraPage> {
               LogService.d(
                   "555555555555555555555555${_faceDetectorService.faces.length}");
               faces = _faceDetectorService.faces;
-              //Utils.showToastSuccess(
-               //   "Yuzlar soni ${_faceDetectorService.faces.length}", context);
             });
           } else {
-            //Utils.showToastError("Odamni rasmi yo'q", context);
             print('face is null');
             setState(() {
               faces = null;
@@ -116,7 +130,12 @@ class _CameraPageState extends State<CameraPage> {
                     //   painter: FacePainter(faces: faces, imageSize: imageSize!),
                     // ),
                     CustomPaint(
-                      painter: EggPainter(faces: faces, imageSize: imageSize!, context: context),
+                      painter: EggPainter(
+                        faces: faces,
+                        imageSize: imageSize!,
+                        context: context,
+                        onBackResult: _onBackResultCallback,
+                      ),
                     ),
                   ],
                 ),
@@ -131,7 +150,24 @@ class _CameraPageState extends State<CameraPage> {
         body: Stack(
       children: [
         body,
+        Container(
+          child: Center(
+              child: Text(
+            "${distanceChainage.value != 4 && distanceChainage.value != 0 ? distanceChainage.value : ""}",
+            style: TextStyle(color: Colors.black, fontSize: 35),
+          )),
+        )
       ],
     ));
+  }
+
+  void _onBackResultCallback(bool faceFound) {
+    Future.delayed(Duration.zero, () {
+      if (faceFound && distanceChainage.value > 0) {
+        distanceChainage.value--;
+      } else if (!faceFound) {
+        distanceChainage.value = 4;
+      }
+    });
   }
 }

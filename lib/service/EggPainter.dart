@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:real_soft_task/log_service.dart';
+import 'package:real_soft_task/model/FaceRes.dart';
 
 class EggPainter extends CustomPainter {
   final List<Face>? faces;
   final Size imageSize;
   final BuildContext context;
-  late ValueChanged<bool> onBackResult;
+  late ValueChanged<FaceRes> onBackResult;
 
   EggPainter({
     required this.faces,
@@ -59,11 +61,16 @@ class EggPainter extends CustomPainter {
 
   bool facesInsideOval() {
     if (faces == null || faces!.isEmpty) {
-      onBackResult(false);
+      onBackResult(FaceRes(false, null, null));
       return false;
     }
 
     Face primaryFace = faces!.first;
+
+    LogService.e("headEulerAngleX ${primaryFace.headEulerAngleX}");
+    LogService.e("headEulerAngleY ${primaryFace.headEulerAngleY}");
+    LogService.e("headEulerAngleZ ${primaryFace.headEulerAngleZ}");
+
     Rect faceBoundingBox = primaryFace.boundingBox;
 
     double faceCenterX = faceBoundingBox.left + (faceBoundingBox.width / 2);
@@ -73,16 +80,16 @@ class EggPainter extends CustomPainter {
       if (faceBoundingBox.width + faceBoundingBox.height > 850 ||
           faceBoundingBox.width + faceBoundingBox.height < 750) {
         // Utils.showToastError("Yuz qizil aylana ichiga olib keling", context);
-        onBackResult(false);
+        onBackResult(FaceRes(false, primaryFace.headEulerAngleY, primaryFace.headEulerAngleX));
         return false;
       } else {
         // Utils.showToastSuccess("To'g'ri", context);
-        onBackResult(true);
+        onBackResult(FaceRes(true, primaryFace.headEulerAngleY, primaryFace.headEulerAngleX));
         return true;
       }
     } else {
       // Utils.showToastError("Yuz qizil aylana ichiga olib keling", context);
-      onBackResult(false);
+      onBackResult(FaceRes(false, primaryFace.headEulerAngleY, primaryFace.headEulerAngleX));
       return false;
     }
   }

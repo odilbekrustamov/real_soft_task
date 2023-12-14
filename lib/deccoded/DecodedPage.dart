@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../Data.dart';
+import '../model/Data.dart';
 
 class DecodedPage extends StatefulWidget {
   const DecodedPage({super.key});

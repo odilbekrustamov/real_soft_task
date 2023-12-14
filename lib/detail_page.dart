@@ -1,15 +1,27 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:real_soft_task/log_service.dart';
 
 class DetailPage extends StatefulWidget {
   static final String id = "detail_page";
 
-  const DetailPage({super.key});
+  final String? imagePath;
+  DetailPage({Key? key, required this.imagePath}) : super(key: key);
+
 
   @override
   State<DetailPage> createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
+
+  @override
+  void initState() {
+    LogService.d("csdccvsvdsvdvd    ${widget.imagePath}");
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,10 +29,8 @@ class _DetailPageState extends State<DetailPage> {
       body: Stack(
         children: [
           Center(
-              child: Text(
-            'Counter:',
-            style: TextStyle(fontSize: 24.0, color: Colors.red),
-          ))
+              child: Image.file(File(widget.imagePath!))
+          )
         ],
       ),
     );

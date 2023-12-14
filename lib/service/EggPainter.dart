@@ -61,15 +61,11 @@ class EggPainter extends CustomPainter {
 
   bool facesInsideOval() {
     if (faces == null || faces!.isEmpty) {
-      onBackResult(FaceRes(false, null, null));
+      onBackResult(FaceRes(false, 0.0));
       return false;
     }
 
     Face primaryFace = faces!.first;
-
-    LogService.e("headEulerAngleX ${primaryFace.headEulerAngleX}");
-    LogService.e("headEulerAngleY ${primaryFace.headEulerAngleY}");
-    LogService.e("headEulerAngleZ ${primaryFace.headEulerAngleZ}");
 
     Rect faceBoundingBox = primaryFace.boundingBox;
 
@@ -80,16 +76,16 @@ class EggPainter extends CustomPainter {
       if (faceBoundingBox.width + faceBoundingBox.height > 850 ||
           faceBoundingBox.width + faceBoundingBox.height < 750) {
         // Utils.showToastError("Yuz qizil aylana ichiga olib keling", context);
-        onBackResult(FaceRes(false, primaryFace.headEulerAngleY, primaryFace.headEulerAngleX));
+        onBackResult(FaceRes(false, 0.0));
         return false;
       } else {
         // Utils.showToastSuccess("To'g'ri", context);
-        onBackResult(FaceRes(true, primaryFace.headEulerAngleY, primaryFace.headEulerAngleX));
+        onBackResult(FaceRes(true, primaryFace.headEulerAngleY ?? 0.0));
         return true;
       }
     } else {
       // Utils.showToastError("Yuz qizil aylana ichiga olib keling", context);
-      onBackResult(FaceRes(false, primaryFace.headEulerAngleY, primaryFace.headEulerAngleX));
+      onBackResult(FaceRes(false, 0.0));
       return false;
     }
   }

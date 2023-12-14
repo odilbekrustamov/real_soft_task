@@ -26,8 +26,12 @@ class _CameraPageState extends State<CameraPage> {
   Size? imageSize;
   bool _detectingFaces = false;
   bool _initializing = false;
+  ValueNotifier<int> task = ValueNotifier<int>(1);
+  ValueNotifier<double> headEulerAngleY = ValueNotifier<double>(0.0);
   ValueNotifier<int> countdown = ValueNotifier<int>(4);
   ValueNotifier<bool> faceFound = ValueNotifier<bool>(false);
+  ValueNotifier<String> text = ValueNotifier<String>(
+      "Yuzingizni aylana ichiga olib keling");
   late Timer _countdownTimer;
 
   // service injection
@@ -47,24 +51,42 @@ class _CameraPageState extends State<CameraPage> {
       } else {
         countdown.value = 4;
         stopCountdown();
+        text.value = "Yuzingizni aylan ichiga olib keling";
       }
     });
 
     countdown.addListener(() async {
-      if (countdown.value == 0) {
-        LogService.e('Counter changed: ${faceFound.value}  new page');
-        _countdownTimer.cancel();
-        String? imagePath = await onShot();
+      text.value =
+          "${countdown.value != 4 && countdown.value != 0 ? "${countdown.value} soniya kuting" : ""}";
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) =>
-                DetailPage(imagePath: imagePath),
-          ),
-        );
+      if (countdown.value == 0) {
+        if (task.value == 1) {
+          countdown.value = 4;
+          task.value = 2;
+          text.value = "Yuzni o'ng tomonga buring";
+        }else if(task.value == 2){
+          countdown.value = 4;
+          task.value = 3;
+          text.value = "Markazga qarang";
+        } else if(task.value == 3){
+          LogService.e('Counter changed: ${faceFound.value}  new page');
+          _countdownTimer.cancel();
+          String? imagePath = await onShot();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  DetailPage(imagePath: imagePath),
+            ),
+          );
+        }
         countdown.value = 4;
       }
+    });
+
+    headEulerAngleY.addListener(() {
+      LogService.e("headEulerAngleY ${headEulerAngleY.value}");
     });
   }
 
@@ -198,7 +220,7 @@ class _CameraPageState extends State<CameraPage> {
                   // Content for the second container
                   child: Center(
                     child: Text(
-                      "${countdown.value != 4 && countdown.value != 0 ? "${countdown.value} soniya kuting" : ""}",
+                      text.value,
                       style: TextStyle(color: Colors.black, fontSize: 20),
                     ),
                   ),
@@ -213,9 +235,11 @@ class _CameraPageState extends State<CameraPage> {
 
   void _onBackResultCallback(FaceRes faceRes) {
     LogService.e('Counter hvbhgvvhvvvh: ${faceRes.faceFound} ');
+    LogService.e('Counter hvbhgvvhvvvh: ${faceRes.headEulerAngleY} ');
 
     // Future.delayed(Duration.zero, () {
     faceFound.value = faceRes.faceFound;
+    headEulerAngleY.value = faceRes.headEulerAngleY!;
     //});
   }
 
@@ -223,9 +247,33 @@ class _CameraPageState extends State<CameraPage> {
     const oneSecond = Duration(seconds: 1);
 
     _countdownTimer = Timer.periodic(oneSecond, (timer) {
-      if (faceFound.value && countdown.value > 0) {
-        LogService.d('Countdown: ${countdown.value}');
-        countdown.value--;
+      if (task.value == 1) {
+        if (headEulerAngleY.value > 20) {
+          if (faceFound.value && countdown.value > 0) {
+            LogService.d('Countdown: ${countdown.value}');
+            countdown.value--;
+          }
+        } else {
+          text.value = "Yuzingizni chap tomonga buring";
+        }
+      } else if(task.value == 2){
+        if (headEulerAngleY.value < -20) {
+          if (faceFound.value && countdown.value > 0) {
+            LogService.d('Countdown: ${countdown.value}');
+            countdown.value--;
+          }
+        } else {
+          text.value = "Yuzingizni o'ng tomonga buring";
+        }
+      }else if(task.value == 3){
+        if (headEulerAngleY.value > -10 && headEulerAngleY.value < 10) {
+          if (faceFound.value && countdown.value > 0) {
+            LogService.d('Countdown: ${countdown.value}');
+            countdown.value--;
+          }
+        }else{
+          text.value = "Markazga qarang";
+        }
       }
     });
   }

@@ -15,5 +15,7 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-![Video](https://github.com/RustamovOdilbek/real_soft_task/raw/main/assets/106246180/2eb87b0b-8fe5-4860-b524-2cb6f5349fc6)
-
+<video width="320" height="240" controls>
+  <source src="https://username.github.io/repo/your-video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>

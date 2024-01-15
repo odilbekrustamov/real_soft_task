@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:real_soft_task/camera/camera_page.dart';
+import 'package:real_soft_task/list/list_page.dart';
+import 'package:real_soft_task/pdf/pdf.dart';
 import 'package:real_soft_task/service/locator.dart';
+
+import 'passport/passport_page.dart';
 
 Future<void> main() async {
   setupServices();
@@ -18,7 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: CameraPage(),
+      home: PdfPage(),
       // routes: {
       //   DetailPage.id: (context) => DetailPage(""),
       //   CameraPage.id: (context) => CameraPage()

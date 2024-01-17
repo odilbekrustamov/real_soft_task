@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:real_soft_task/list/list_page.dart';
 import 'package:real_soft_task/pdf/pdf.dart';
+import 'package:real_soft_task/search/search_state.dart';
 import 'package:real_soft_task/service/locator.dart';
-
-import 'passport/passport_page.dart';
 
 Future<void> main() async {
   setupServices();

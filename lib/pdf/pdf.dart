@@ -75,7 +75,6 @@ class _PdfPageState extends State<PdfPage> {
               ? Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Show the dialogue when the button is clicked
                       _showPdfDialog(context);
                     },
                     child: Text('Open PDF Dialogue'),
@@ -118,9 +117,7 @@ class _PdfPageState extends State<PdfPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Container(
-            width: 350,
-            height: 600,
+          content: SingleChildScrollView(
             child: Column(
               children: [
                 Row(
@@ -128,7 +125,7 @@ class _PdfPageState extends State<PdfPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        _savePdf(context);
+                        _savePdfDialog(context);
                       },
                       child: Text('Save'),
                     ),
@@ -195,7 +192,55 @@ class _PdfPageState extends State<PdfPage> {
     );
   }
 
-  void _savePdf(BuildContext context) async {
+  Future<void> _savePdfDialog(BuildContext context) async {
+    TextEditingController fileNameController = TextEditingController();
+    bool isSaving = false;
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Enter PDF File Name'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: fileNameController,
+                    decoration: InputDecoration(labelText: 'File Name'),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                      if (fileNameController.text.isNotEmpty) {
+                        setState(() {
+                          isSaving = true;
+                        });
+                        await _savePdfWithName(
+                            context, fileNameController.text);
+                        Navigator.pop(context);
+                      } else {
+                        // Show error message or handle accordingly
+                        print('Please enter a file name');
+                      }
+                    },
+                    child: isSaving
+                        ? CircularProgressIndicator()
+                        : Text('Save'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _savePdfWithName(BuildContext context, String fileName) async {
     try {
       if (remotePDFpath.isNotEmpty) {
         var customDir = Directory('/storage/emulated/0/RealSoftTask/File');
@@ -203,8 +248,8 @@ class _PdfPageState extends State<PdfPage> {
         if (!await customDir.exists()) {
           await customDir.create(recursive: true);
         }
-        var newPathAndFilename =
-            '${customDir.path}/${file.uri.pathSegments.last}.pdf';
+
+        var newPathAndFilename = '${customDir.path}/$fileName.pdf';
         await file.copy(newPathAndFilename);
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -221,7 +266,7 @@ class _PdfPageState extends State<PdfPage> {
   void _sharePdf(BuildContext context) {
     LogService.e(remotePDFpath);
     if (remotePDFpath.isNotEmpty) {
-      Share.shareFiles(['${remotePDFpath}'],
+      Share.shareFiles(['${file.path}'],
           text: 'PDF!',
           subject: 'Sharing PDF File',
           mimeTypes: ['application/pdf']);
